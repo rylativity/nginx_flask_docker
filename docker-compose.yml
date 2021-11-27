@@ -1,0 +1,36 @@
+version: '3.9'
+
+services: 
+  nginx:
+    # image: my_repo/nginx
+    build: 
+      context: .
+      dockerfile: ./nginx.Dockerfile
+    ports: 
+      - 8080:80
+      - 8443:443
+    # healthcheck:
+    #   test: ['CMD', 'curl', '-f', 'http://localhost:80']
+    secrets:
+       - ssl_cert
+       - ssl_key
+  flaskapp:
+    # image: my_repo/my_flask_app
+    build: 
+      context: .
+      dockerfile: ./flaskapp.Dockerfile
+    # ports: 
+    #   - 5000:5000
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000/hello']
+      start_period: 7s
+
+networks:
+  default:
+    name: nginx_default
+    external: true
+secrets:
+  ssl_cert:
+    file: sample.pem
+  ssl_key:
+    file: sample-key.pem
